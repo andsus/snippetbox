@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -21,8 +22,9 @@ type application struct {
 func main() {
 	// Define new command-line flag with the name addr, a default value of :4000
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	pass := os.Getenv("MYSQL_PW")
 
-	dsn := flag.String("dsn", "web:passpass@/snippetbox?parseTime=true", "MySQL data source name")
+	dsn := flag.String("dsn", fmt.Sprintf("web:%v@/snippetbox?parseTime=true", pass), "MySQL data source name")
 
 	// This read the command-line flag value and assign to addr variable
 	flag.Parse()
