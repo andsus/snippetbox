@@ -2,10 +2,10 @@ package main
 
 import (
 	"html/template"
-	"net/url"
 	"path/filepath"
 	"time"
 
+	"github.com/andsus/snippetbox/pkg/forms"
 	"github.com/andsus/snippetbox/pkg/models"
 )
 
@@ -13,10 +13,12 @@ import (
 // any dynamic data that we want to pass to our HTML templates.
 // At the moment it only contains one field, but we'll add more
 // to it as the build progresses.
+
+// Update the templateData fields, removing the individual FormData and
+// FormErrors fields and replacing them with a single Form field.
 type templateData struct {
 	CurrentYear int
-	FormData    url.Values
-	FormErrors  map[string]string
+	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }
