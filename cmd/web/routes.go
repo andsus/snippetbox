@@ -22,6 +22,12 @@ func (app *application) routes() http.Handler {
 	// use github.com/bmizerany/pat
 	mux := pat.New()
 
+	// If you’re not using the justinas/alice package to help manage your middleware chains, then
+	// you’d simply need to wrap your handler functions with the session middleware instead.
+	// Like this:
+	// mux.Get("/", app.session.Enable(http.HandlerFunc(app.home)))
+	// mux.Get("/snippet/create", app.session.Enable(http.HandlerFunc(app.createSnippetForm)))
+
 	// Use the http.NewServeMux() function to initialize a new servemux, then
 	// register the home function as the handler for the "/" URL pattern.
 	// mux := http.NewServeMux()
@@ -39,9 +45,19 @@ func (app *application) routes() http.Handler {
 	// Update these routes to use the new dynamic middleware chain followed
 	// by the appropriate handler function.
 	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
-	mux.Get("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippetForm))
-	mux.Post("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippet))
+	// Add the requireAuthentication middleware to the chain.
+	mux.Get("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippetForm))
+	// Add the requireAuthentication middleware to the chain.
+	mux.Post("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippet))
 	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
+
+	// Add the five new routes.
+	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
+	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
+	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
+	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
+	// Add the requireAuthentication middleware to the chain.
+	mux.Post("/user/logout", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.logoutUser))
 
 	// Create a file server which serves files out of the "./ui/static" directory.
 	// Note that the path given to the http.Dir function is relative to the project
