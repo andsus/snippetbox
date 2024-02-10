@@ -25,6 +25,8 @@
         <div>
           {{if .IsAuthenticated}}
             <form action='/user/logout' method='POST'>
+              <!-- Include CSRF token -->
+              <input type='hidden' name='csrf_token' value='{{.CSRFToken}}' />
               <button>Logout</button>
             </form>
           {{else}}
